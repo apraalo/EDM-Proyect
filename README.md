@@ -24,6 +24,7 @@ This project aims to analyze and visualize various aspects of application data, 
    unzip DataSets.zip -d datasets
    ```
 3. **Run the Jupyter Notebooks**:
+
    Open each `.ipynb` file in Jupyter Notebook or Jupyter Lab to explore the analyses.
    Open the `file main2.py` that is located in the App file
 
