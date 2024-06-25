@@ -712,6 +712,25 @@ def generar_grafico5():
         ]
     )
 
+    # Leer solo las columnas necesarias desde el archivo .parquet
+    df = pd.read_parquet(
+        "quejas-final.parquet", columns=["distrito_localización", "tipo_solicitud", "geo_shape"]
+    )
+    dfvul = pd.read_csv(
+        "vulnerabilidad-por-barrios.csv",
+        sep=";",
+        usecols=[
+            "Distrito",
+            "Ind_Equip",
+            "Ind_Dem",
+            "Ind_Econom",
+            "Ind_Global",
+            "Vul_Equip",
+            "Vul_Dem",
+            "Vul_Econom",
+            "Vul_Global",
+        ],
+    )
     # Convertir las columnas de vulnerabilidad a valores numéricos usando el mapeo proporcionado
     vulnerability_mapping = {
         "Vulnerabilidad Alta": 5,
@@ -724,22 +743,22 @@ def generar_grafico5():
     dfvul["Nivel_Global"] = dfvul["Vul_Global"].map(vulnerability_mapping)
 
     # Agrupar por distrito y calcular la media de los índices de vulnerabilidad y tomar la primera ocurrencia de las categorías
-    # dfvul_agg = (
-    #     dfvul.groupby("Distrito")
-    #     .agg(
-    #         {
-    #             "Ind_Equip": "mean",
-    #             "Ind_Dem": "mean",
-    #             "Ind_Econom": "mean",
-    #             "Ind_Global": "mean",
-    #             "Vul_Equip": "first",
-    #             "Vul_Dem": "first",
-    #             "Vul_Econom": "first",
-    #             "Vul_Global": "first",
-    #         }
-    #     )
-    #     .reset_index()
-    # )
+    dfvul_agg = (
+        dfvul.groupby("Distrito")
+        .agg(
+            {
+                "Ind_Equip": "mean",
+                "Ind_Dem": "mean",
+                "Ind_Econom": "mean",
+                "Ind_Global": "mean",
+                "Vul_Equip": "first",
+                "Vul_Dem": "first",
+                "Vul_Econom": "first",
+                "Vul_Global": "first",
+            }
+        )
+        .reset_index()
+    )
 
     # Procesar datos de solicitudes
     conteo_distrito_tipo = (
@@ -753,7 +772,7 @@ def generar_grafico5():
         .reset_index()
     )
     conteo_vul = pd.merge(
-        pivot_conteo, dfvul, left_on="distrito_localización", right_on="Distrito", how="left"
+        pivot_conteo, dfvul_agg, left_on="distrito_localización", right_on="Distrito", how="left"
     )
 
     # Filtrar columnas necesarias
